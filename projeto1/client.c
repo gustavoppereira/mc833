@@ -29,7 +29,7 @@ struct user {
     char city[50];
     char formation[50];
     char skills[50];
-    char experience[50];
+    char experience[200];
 };
 
 typedef struct user user;
@@ -99,15 +99,36 @@ int main(int argc, char *argv[])
     // get input for selected methods
     if(selected_method != 4) {
         send_request.operation = selected_method;
-        if(i==2) {
+        if(selected_method==2) {
             fprintf(stdout, "Input selected %s:\n", method_fields[selected_method+1]);
             fgets (input, MAXINPUTSIZE, stdin);
             strcpy(send_request.email,input);
         }
         fprintf(stdout, "Input selected %s:\n", method_fields[selected_method]);
         fgets (input, MAXINPUTSIZE, stdin);
-        strcpy(send_request.experience,input);
+        switch(selected_method){
+            case 0:
+                strcpy(send_request.formation,input);
+                break;
+            case 1:
+                strcpy(send_request.city,input);
+                break;
+            case 2:
+                strcpy(send_request.experience,input);
+                break;
+            case 3:
+            case 5:
+                strcpy(send_request.email,input);
+                break;
+        }
     }
+    // print input for debug
+    fprintf(stdout, "Request:\n");
+    fprintf(stdout, "method: %i\n", send_request.operation);
+    fprintf(stdout, "exp: %s\n", send_request.experience);
+    fprintf(stdout, "form: %s\n", send_request.formation);
+    fprintf(stdout, "email: %s\n", send_request.email);
+    fprintf(stdout, "city: %s\n", send_request.city);
 
 	// loop through all the results and connect to the first we can
 	for(p = servinfo; p != NULL; p = p->ai_next) {
