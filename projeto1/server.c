@@ -30,7 +30,17 @@ struct user {
 	char experience[50];
 };
 
+struct request {
+	char experience[50];
+	char formation[50];
+	char email[50];
+	char city[50];
+	int operation;
+};
+
+typedef struct request request;
 typedef struct user user;
+
 
 void sigchld_handler(int s)
 {
@@ -54,6 +64,55 @@ void *get_in_addr(struct sockaddr *sa)
 	return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
 
+
+
+void list_by_formation(char* formation, int sockfd) {
+
+}
+
+void list_skills_by_city(char* city, int sockfd) {
+
+}
+
+void add_skill(char* email, int sockfd) {
+
+}
+
+void list_all(int sockfd) {
+
+}
+
+void get_experience(char* email, int sockfd) {
+
+}
+
+void get_user(char* email, int sockfd) {
+
+}
+
+void read_request(request req, int sockfd) {
+	switch (req.operation) {
+		case 1:
+			list_by_formation(req.formation, sockfd);
+		break;
+		case 2:
+			list_skills_by_city(req.city, sockfd);
+		break;
+		case 3:
+			add_skill(req.email, sockfd);
+		break;
+		case 4:
+			get_experience(req.email, sockfd);
+		break;
+		case 5:
+			list_all(sockfd);
+		break;
+		case 6:
+			get_user(req.email, sockfd);
+		break;
+	}
+}
+
 int main(void)
 {
 	int sockfd, new_fd;  // listen on sock_fd, new connection on new_fd
@@ -65,7 +124,7 @@ int main(void)
 	char s[INET6_ADDRSTRLEN];
 	int rv;
 
-	char buffer[100];
+	request req;
 	int numbytes = 0;
 
 	memset(&hints, 0, sizeof hints);
@@ -103,7 +162,7 @@ int main(void)
 
 	freeaddrinfo(servinfo); // all done with this structure
 
-	if (p == NULL)  {
+	if (p == NULL) {
 		fprintf(stderr, "server: failed to bind\n");
 		exit(1);
 	}
@@ -138,16 +197,21 @@ int main(void)
 
 		if (!fork()) { // this is the child process
 			close(sockfd); // child doesn't need the listener
-			if (send(new_fd, "Hello, world!", 13, 0) == -1)
-				perror("send");
 
-			if ((numbytes = recv(new_fd, buffer, 100, 0)) == -1) {
-				perror("recv");
+			if ((numbytes = recv(new_fd, &req, sizeof(request), 0)) == -1) {
+				perror("error receiving request");
 			}
 
-			buffer[numbytes] = '\0';
+			// read_request(req, new_fd);
 
-			printf("server received : %s\n", buffer);
+			// if (send(new_fd, "Hello, world!", 13, 0) == -1)
+			// 	perror("send");
+			//
+			// if ((numbytes = recv(new_fd, buffer, 100, 0)) == -1) {
+			// 	perror("recv");
+			// }
+
+			printf("server received request with operation : %d\n", req.operation);
 
 			close(new_fd);
 			exit(0);
