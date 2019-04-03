@@ -123,12 +123,13 @@ int main(int argc, char *argv[])
         }
     }
     // print input for debug
-    fprintf(stdout, "Request:\n");
+    fprintf(stdout, "Request: {\n");
     fprintf(stdout, "method: %i\n", send_request.operation);
     fprintf(stdout, "exp: %s\n", send_request.experience);
     fprintf(stdout, "form: %s\n", send_request.formation);
     fprintf(stdout, "email: %s\n", send_request.email);
     fprintf(stdout, "city: %s\n", send_request.city);
+    fprintf(stdout, "}\n");
 
 	// loop through all the results and connect to the first we can
 	for(p = servinfo; p != NULL; p = p->ai_next) {
