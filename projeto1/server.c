@@ -19,6 +19,8 @@
 
 #define BACKLOG 10	 // how many pending connections queue will hold
 
+#define DB_ENTRY_SIZE 10
+
 struct user {
 	char email[50];
 	char first_name[50];
@@ -27,11 +29,11 @@ struct user {
 	char city[50];
 	char formation[50];
 	char skills[50];
-	char experience[50];
+	char experience[200];
 };
 
 struct request {
-	char experience[50];
+	char experience[200];
 	char formation[50];
 	char email[50];
 	char city[50];
@@ -64,10 +66,31 @@ void *get_in_addr(struct sockaddr *sa)
 	return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
 
-
+FILE *open_file() {
+	return fopen("database", "r+");
+}
 
 void list_by_formation(char* formation, int sockfd) {
+	printf("Executing list_by_formation (%s)\n", formation);
+	FILE *stream = open_file();
+	user database[DB_ENTRY_SIZE], result[DB_ENTRY_SIZE];
+	int count = 0;
 
+	if(!fread(database, sizeof(user), DB_ENTRY_SIZE, stream)) {
+		perror("Database error");
+	}
+
+	fclose(stream);
+
+	for(int i = 0; i < DB_ENTRY_SIZE; i++) {
+		if (strcmp(database[i].formation, formation) == 0) {
+			result[count++] = database[i];
+		}
+	}
+
+	if (send(sockfd, &result, count * sizeof(user), 0) == -1) {
+		perror("list_by_formation");
+	}
 }
 
 void list_skills_by_city(char* city, int sockfd) {
@@ -91,6 +114,7 @@ void get_user(char* email, int sockfd) {
 }
 
 void read_request(request req, int sockfd) {
+	printf("Reading request for operation : %d\n", req.operation);
 	switch (req.operation) {
 		case 1:
 			list_by_formation(req.formation, sockfd);
@@ -123,6 +147,11 @@ int main(void)
 	int yes=1;
 	char s[INET6_ADDRSTRLEN];
 	int rv;
+
+	FILE *outfile;
+
+	user input1;
+	user input2;
 
 	request req;
 	int numbytes = 0;
@@ -202,7 +231,7 @@ int main(void)
 				perror("error receiving request");
 			}
 
-			// read_request(req, new_fd);
+			read_request(req, new_fd);
 
 			// if (send(new_fd, "Hello, world!", 13, 0) == -1)
 			// 	perror("send");
