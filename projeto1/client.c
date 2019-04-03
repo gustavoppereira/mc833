@@ -99,13 +99,10 @@ int main(int argc, char *argv[])
     // get input for selected methods
     if(selected_method != 4) {
         send_request.operation = selected_method;
-        if(selected_method==2) {
-            fprintf(stdout, "Input selected %s:\n", method_fields[selected_method+1]);
-            fgets (input, MAXINPUTSIZE, stdin);
-            strcpy(send_request.email,input);
-        }
+        
         fprintf(stdout, "Input selected %s:\n", method_fields[selected_method]);
         fgets (input, MAXINPUTSIZE, stdin);
+        strtok(input, "\n");
         switch(selected_method){
             case 0:
                 strcpy(send_request.formation,input);
@@ -115,7 +112,10 @@ int main(int argc, char *argv[])
                 break;
             case 2:
                 strcpy(send_request.experience,input);
-                break;
+                
+                fprintf(stdout, "Input selected %s:\n", method_fields[selected_method+1]);
+                fgets (input, MAXINPUTSIZE, stdin);
+                strtok(input, "\n");
             case 3:
             case 5:
                 strcpy(send_request.email,input);
@@ -158,11 +158,44 @@ int main(int argc, char *argv[])
 	printf("client: connecting to %s\n", s);
 
 	freeaddrinfo(servinfo); // all done with this structure
-
-	if ((numbytes = send(sockfd, &send_request, sizeof(request), 0)) == -1) {
-		perror("send");
-		exit(1);
-	}
+    
+    // Send method
+    printf("client: sending operation\n");
+    if ((numbytes = send(sockfd, &(send_request.operation), sizeof(int), 0)) == -1) {
+        perror("failed sending operation");
+        exit(1);
+    }
+    
+    switch(selected_method){
+        case 0:
+            printf("client: sending formation\n");
+            if ((numbytes = send(sockfd, &(send_request.formation), sizeof(char[50]), 0)) == -1) {
+                perror("failed sending formation");
+                exit(1);
+            }
+            break;
+        case 1:
+            printf("client: sending city\n");
+            if ((numbytes = send(sockfd, &(send_request.city), sizeof(char[50]), 0)) == -1) {
+                perror("failed sending city");
+                exit(1);
+            }
+            break;
+        case 2:
+            printf("client: sending experience\n");
+            if ((numbytes = send(sockfd, &(send_request.experience), sizeof(char[50]), 0)) == -1) {
+                perror("failed sending experience");
+                exit(1);
+            }
+        case 3:
+        case 5:
+            printf("client: sending email\n");
+            if ((numbytes = send(sockfd, &(send_request.email), sizeof(char[50]), 0)) == -1) {
+                perror("failed sending email");
+                exit(1);
+            }
+            break;
+    }
 
 	if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
 	    perror("recv");
