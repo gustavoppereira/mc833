@@ -115,23 +115,33 @@ void get_user(char* email, int sockfd) {
 
 void read_request(request req, int sockfd) {
 	printf("Reading request for operation : %d\n", req.operation);
+    
+    
+    fprintf(stdout, "Request: {\n");
+    fprintf(stdout, "method: %i\n", req.operation);
+    fprintf(stdout, "exp: %s\n", req.experience);
+    fprintf(stdout, "form: %s\n", req.formation);
+    fprintf(stdout, "email: %s\n", req.email);
+    fprintf(stdout, "city: %s\n", req.city);
+    fprintf(stdout, "}\n");
+    
 	switch (req.operation) {
-		case 1:
+		case 0:
 			list_by_formation(req.formation, sockfd);
 		break;
-		case 2:
+		case 1:
 			list_skills_by_city(req.city, sockfd);
 		break;
-		case 3:
+		case 2:
 			add_skill(req.email, sockfd);
 		break;
-		case 4:
+		case 3:
 			get_experience(req.email, sockfd);
 		break;
-		case 5:
+		case 4:
 			list_all(sockfd);
 		break;
-		case 6:
+		case 5:
 			get_user(req.email, sockfd);
 		break;
 	}
