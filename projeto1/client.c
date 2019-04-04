@@ -233,7 +233,7 @@ int main(int argc, char *argv[])
   
   struct timeval start, stop;
   gettimeofday(&start, NULL);
-  printf("Started send operation at : %d\n", start.tv_usec);
+  printf("Started send operation at : %ld.%d\n", start.tv_sec, start.tv_usec);
   // Send params
   switch(selected_method){
     case 0:
