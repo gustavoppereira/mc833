@@ -78,7 +78,7 @@ user str2user (char* str) {
         
     }
     
-    i = i++;
+    i++;
     ptr = strtok(NULL, delim);
   }
   return usr;
@@ -95,7 +95,7 @@ user* str2userlist(char* str){
   {
     usrs[i] = str2user(ptr);
     
-    i = i++;
+    i++;
     ptr = strtok(NULL, delim);
   }
   return usrs;
