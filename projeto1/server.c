@@ -121,6 +121,7 @@ void list_by_formation(user* database, int sockfd) {
 			send_result(&database[i].last_name, 50, sockfd);
 		}
 	}
+	shutdown(sockfd, 1);
 }
 
 void list_skills_by_city(char* city, int sockfd) {
