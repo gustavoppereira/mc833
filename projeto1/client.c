@@ -12,7 +12,7 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
-
+#include <time.h>
 #include <arpa/inet.h>
 
 #define PORT "3490" // the port client will be connecting to
@@ -52,6 +52,10 @@ void *get_in_addr(struct sockaddr *sa)
   }
   
   return &(((struct sockaddr_in6*)sa)->sin6_addr);
+}
+
+double timestamp() {
+  return (double) clock() / (CLOCKS_PER_SEC / 1000);
 }
 
 void print_user(user data) {
@@ -231,6 +235,10 @@ int main(int argc, char *argv[])
     exit(1);
   }
   
+  double start, end;
+  
+  start = timestamp();
+  printf("Started send operation at : %lf\n", start);
   // Send params
   switch(selected_method){
     case 0:
@@ -263,12 +271,25 @@ int main(int argc, char *argv[])
       }
       break;
   }
+  end = timestamp();
+  printf("Ended send operation at : %lf\n", end);
+  printf("Time for send operation : %lf\n", end - start);
+
+  double start2;
+  start2 = timestamp();
+  printf("Started receive operation at : %lf\n", start2);
   
   numbytes = -1;
   if ((numbytes = recv(sockfd, buf, MAXDATASIZE, 0)) == -1) {
     perror("recv");
     exit(1);
   }
+  
+  end = timestamp();
+  printf("Ended receive operation at : %lf\n", end);
+  printf("Time for receive operation : %lf\n", end - start2);
+  
+  printf("Time for full operation: %lf\n", end - start);
   
   if(numbytes != 0) {
     
