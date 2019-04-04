@@ -140,6 +140,21 @@ void concat_user(char* result, user data) {
 	}
 }
 
+void concat_string(char* result, char* data) {
+	if(strcmp(result, "") == 0) {
+		strcpy(result, data);
+	} else {
+		strcat(result, ";");
+		strcat(result, data);
+	}
+}
+
+void replace_database(user* database, FILE *file) {
+	for(int i = 0; i < DB_ENTRY_SIZE; i++) {
+		fwrite(&database[i], sizeof(user), 1, file);
+	}
+}
+
 void list_by_formation(user* database, int sockfd) {
 	char formation[50];
 	char result[MAXUSERBYTES] = "";
@@ -158,6 +173,7 @@ void list_by_formation(user* database, int sockfd) {
 
 void list_skills_by_city(user* database, int sockfd) {
 	char city[50];
+	char result[MAXUSERBYTES] = "";
 
 	if(recv(sockfd, &city, 50, 0) == -1) {
 		perror("list_skills_by_city: recv city");
@@ -165,25 +181,76 @@ void list_skills_by_city(user* database, int sockfd) {
 	}
 	for(int i = 0; i < DB_ENTRY_SIZE; i++) {
 		if (strcmp(database[i].city, city) == 0) {
-			send_result(&database[i].city, 50, sockfd);
+			concat_user(result, database[i]);
 		}
 	}
+	send_result(&result, MAXUSERBYTES, sockfd);
 }
 
-void add_skill(char* email, int sockfd) {
+void add_skill(user* database, int sockfd) {
+	char email[50], skill[50];
+	FILE *file = open_file("w+");
+	if (file == NULL) {
+		perror("add_skill: opening file");
+		exit(1);
+	}
 
+	if(recv(sockfd, &email, 50, 0) == -1) {
+		perror("add_skill: recv email");
+		exit(1);
+	}
+	if(recv(sockfd, &skill, 50, 0) == -1) {
+		perror("add_skill: recv skill");
+		exit(1);
+	}
+	for(int i = 0; i < DB_ENTRY_SIZE; i++) {
+		if(strcmp(database[i].email, email) == 0) {
+			 concat_string(database[i].skills, skill);
+		}
+	}
+	replace_database(database, file);
+	fclose(file);
 }
 
-void list_all(int sockfd) {
+void list_all(user* database, int sockfd) {
+	char result[MAXUSERBYTES] = "";
 
+	for(int i = 0; i < DB_ENTRY_SIZE; i++) {
+		concat_user(result, database[i]);
+	}
+	send_result(&result, MAXUSERBYTES, sockfd);
 }
 
-void get_experience(char* email, int sockfd) {
+void get_experience(user* database, int sockfd) {
+	char email[50];
+	user result;
 
+	if(recv(sockfd, &email, 50, 0) == -1) {
+		perror("get_experience: recv email");
+		exit(1);
+	}
+	for(int i = 0; i < DB_ENTRY_SIZE; i++) {
+		if(strcmp(database[i].email, email) == 0) {
+			result = database[i];
+		}
+	}
+	send_result(result.experience, 50, sockfd);
 }
 
-void get_user(char* email, int sockfd) {
+void get_user(user* database, int sockfd) {
+	char email[50];
+	user result;
 
+	if(recv(sockfd, &email, 50, 0) == -1) {
+		perror("get_experience: recv email");
+		exit(1);
+	}
+	for(int i = 0; i < DB_ENTRY_SIZE; i++) {
+		if(strcmp(database[i].email, email) == 0) {
+			result = database[i];
+		}
+	}
+	send_result(user2str(result), MAXUSERBYTES, sockfd);
 }
 
 void read_request(int operation, int sockfd) {
