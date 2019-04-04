@@ -103,7 +103,7 @@ char *user2str (user ap)
 }
 
 double timestamp() {
-	return (double) clock() / (CLOCKS_PER_SEC * 1000);
+	return (double) clock() / (CLOCKS_PER_SEC / 1000);
 }
 
 void concat_user(char* result, user data) {
