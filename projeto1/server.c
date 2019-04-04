@@ -37,10 +37,6 @@ struct user {
 
 typedef struct user user;
 
-unsigned long timestamp() {
-  return (unsigned long) time(NULL);
-}
-
 void sigchld_handler(int s)
 {
 	(void)s; // quiet unused variable warning
@@ -77,7 +73,9 @@ void fetch_users(user* result, int count) {
 }
 
 void send_result(void* value, int numbytes, int sockfd) {
-	printf("Sending result at : %lu\n", timestamp());
+  struct timeval start;
+  gettimeofday(&start, NULL);
+	printf("Sending result at : %d\n", start.tv_usec);
 	if (send(sockfd, value, numbytes, 0) == -1) {
 		perror("error sending result");
 	}
@@ -229,10 +227,10 @@ void get_user(user* database, int sockfd) {
 }
 
 void read_request(int operation, int sockfd) {
-	unsigned long start, end;
-
-	start = timestamp();
-	printf("Started operation at : %lu\n", start);
+  struct timeval stop, start;
+  gettimeofday(&start, NULL);
+  
+	printf("Started operation at : %d\n", start.tv_usec);
 	user database[DB_ENTRY_SIZE];
 
 	fetch_users(database, DB_ENTRY_SIZE);
@@ -257,8 +255,8 @@ void read_request(int operation, int sockfd) {
 			get_user(database, sockfd);
 		break;
 	}
-  end = timestamp();
-	printf("Operation ended at : %lu\n", end - start);
+  gettimeofday(&stop, NULL);
+	printf("Operation ended at : %d\n", stop.tv_usec);
 }
 
 int main(void)
@@ -349,7 +347,9 @@ int main(void)
 			if ((numbytes = recv(new_fd, &req_operation, sizeof(int), 0)) == -1) {
 				perror("error receiving request");
 			}
-			printf("Received request at : %lu\n", timestamp());
+      struct timeval start;
+      gettimeofday(&start, NULL);
+			printf("Received request at : %d\n", start.tv_usec);
 			read_request(req_operation, new_fd);
 
 			close(new_fd);

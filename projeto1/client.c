@@ -54,10 +54,6 @@ void *get_in_addr(struct sockaddr *sa)
   return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
 
-unsigned long timestamp() {
-  return (unsigned long) time(NULL);
-}
-
 void print_user(user data) {
   printf("user.email : %s\n", data.email);
   printf("user.first_name : %s\n", data.first_name);
@@ -235,10 +231,9 @@ int main(int argc, char *argv[])
     exit(1);
   }
   
-  unsigned long start, end;
-  
-  start = timestamp();
-  printf("Started send operation at : %lu\n", start);
+  struct timeval start, stop;
+  gettimeofday(&start, NULL);
+  printf("Started send operation at : %d\n", start.tv_usec);
   // Send params
   switch(selected_method){
     case 0:
@@ -271,13 +266,13 @@ int main(int argc, char *argv[])
       }
       break;
   }
-  end = timestamp();
-  printf("Ended send operation at : %lu\n", end);
-  printf("Time for send operation : %lu\n", end - start);
+  gettimeofday(&stop, NULL);
+  printf("Ended send operation at : %d\n", stop.tv_usec);
+  printf("Time for send operation : %d\n", stop.tv_usec - start.tv_usec);
 
-  unsigned long start2;
-  start2 = timestamp();
-  printf("Started receive operation at : %lu\n", start2);
+  struct timeval start2;
+  gettimeofday(&start2, NULL);
+  printf("Started receive operation at : %d\n", start2.tv_usec);
   
   numbytes = -1;
   if ((numbytes = recv(sockfd, buf, MAXDATASIZE, 0)) == -1) {
@@ -285,11 +280,11 @@ int main(int argc, char *argv[])
     exit(1);
   }
   
-  end = timestamp();
-  printf("Ended receive operation at : %lu\n", end);
-  printf("Time for receive operation : %lu\n", end - start2);
+  gettimeofday(&stop, NULL);
+  printf("Ended receive operation at : %d\n", stop.tv_usec);
+  printf("Time for receive operation : %d\n", stop.tv_usec - start2.tv_usec);
   
-  printf("Time for full operation: %lu\n", end - start);
+  printf("Time for full operation: %d\n", stop.tv_usec - start.tv_usec);
   
   if(numbytes != 0) {
     
