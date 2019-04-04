@@ -109,7 +109,6 @@ void print_database(user* database) {
 
 void list_by_formation(user* database, int sockfd) {
 	char formation[50];
-  char ack[3];
 
 	if (recv(sockfd, &formation, 50, 0) == -1) {
 		perror("list_by_formation: recv formation");
@@ -120,14 +119,8 @@ void list_by_formation(user* database, int sockfd) {
 		if (strcmp(database[i].formation, formation) == 0) {
       print_user(database[i]);
       
-      printf("send first name\n");
 			send_result(&database[i].first_name, 50, sockfd);
-      printf("recieve ack\n");
-      if (recv(sockfd, &ack, 3, 0) == -1) {
-        perror("list_by_formation: recv ack");
-        exit(1);
-      }
-      printf("send last name\n");
+      sleep(1);
       send_result(&database[i].last_name, 50, sockfd);
 		}
 	}

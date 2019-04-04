@@ -170,7 +170,7 @@ int main(int argc, char *argv[])
   switch(selected_method){
     case 0:
       printf("client: sending formation\n");
-      if ((numbytes = send(sockfd, &(send_request.formation), 50, 0)) == -1) {
+      if ((numbytes = send(sockfd, &(send_request.formation), sizeof(char[50]), 0)) == -1) {
         perror("failed sending formation");
         exit(1);
       }
@@ -178,21 +178,21 @@ int main(int argc, char *argv[])
       break;
     case 1:
       printf("client: sending city\n");
-      if ((numbytes = send(sockfd, &(send_request.city), 50, 0)) == -1) {
+      if ((numbytes = send(sockfd, &(send_request.city), sizeof(char[50]), 0)) == -1) {
         perror("failed sending city");
         exit(1);
       }
       break;
     case 2:
       printf("client: sending experience\n");
-      if ((numbytes = send(sockfd, &(send_request.experience), 50, 0)) == -1) {
+      if ((numbytes = send(sockfd, &(send_request.experience), sizeof(char[50]), 0)) == -1) {
         perror("failed sending experience");
         exit(1);
       }
     case 3:
     case 5:
       printf("client: sending email\n");
-      if ((numbytes = send(sockfd, &(send_request.email), 50, 0)) == -1) {
+      if ((numbytes = send(sockfd, &(send_request.email), sizeof(char[50]), 0)) == -1) {
         perror("failed sending email");
         exit(1);
       }
@@ -219,11 +219,6 @@ int main(int argc, char *argv[])
         printf("%s\n",buf);
         if(selected_method == 0)
           space_char = 1;
-      }
-      
-      if ((numbytes = send(sockfd, "ack", 3, 0)) == -1) {
-        perror("failed sending email");
-        exit(1);
       }
       
     }
