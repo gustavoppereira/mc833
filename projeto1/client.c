@@ -55,8 +55,19 @@ void *get_in_addr(struct sockaddr *sa)
 }
 
 void print_user(user data) {
+  printf("user.email : %s\n", data.email);
   printf("user.first_name : %s\n", data.first_name);
-  printf("user.last_name : %s\n\n", data.last_name);
+  printf("user.last_name : %s\n", data.last_name);
+  printf("user.image : %s\n", data.image);
+  printf("user.city : %s\n", data.city);
+  printf("user.formation : %s\n", data.formation);
+  printf("user.skills : %s\n", data.skills);
+  printf("user.experience : %s\n", data.experience);
+  printf("\n");
+}
+
+void print_user_skill(user data) {
+  printf("skill : %s\n", data.skills);
 }
 
 user* str2userlist(char* str){
@@ -73,35 +84,27 @@ user* str2userlist(char* str){
   {
     user usr;
     
-    printf("email: %s\n", ptr);
     strcpy(usr.email,ptr);
     
     ptr = strtok(NULL, delim);
-    printf("fn: %s\n", ptr);
     strcpy(usr.first_name,ptr);
     
     ptr = strtok(NULL, delim);
-    printf("ln: %s\n", ptr);
     strcpy(usr.last_name,ptr);
     
     ptr = strtok(NULL, delim);
-    printf("img: %s\n", ptr);
     strcpy(usr.image,ptr);
     
     ptr = strtok(NULL, delim);
-    printf("city: %s\n", ptr);
     strcpy(usr.city,ptr);
     
     ptr = strtok(NULL, delim);
-    printf("form: %s\n", ptr);
     strcpy(usr.formation,ptr);
     
     ptr = strtok(NULL, delim);
-    printf("skills: %s\n", ptr);
     strcpy(usr.skills,ptr);
     
     ptr = strtok(NULL, delim);
-    printf("exp: %s\n", ptr);
     strcpy(usr.experience,ptr);
     
     usrs[i] = usr;
@@ -158,9 +161,9 @@ int main(int argc, char *argv[])
     return 1;
   }
   
+  send_request.operation = selected_method;
   // get input for selected methods
   if(selected_method != 4) {
-    send_request.operation = selected_method;
     
     fprintf(stdout, "Input selected %s:\n", method_fields[selected_method]);
     fgets (input, MAXINPUTSIZE, stdin);
@@ -185,13 +188,13 @@ int main(int argc, char *argv[])
     }
   }
   // print input for debug
-  fprintf(stdout, "Request: {\n");
-  fprintf(stdout, "method: %i\n", send_request.operation);
-  fprintf(stdout, "exp: %s\n", send_request.experience);
-  fprintf(stdout, "form: %s\n", send_request.formation);
-  fprintf(stdout, "email: %s\n", send_request.email);
-  fprintf(stdout, "city: %s\n", send_request.city);
-  fprintf(stdout, "}\n");
+//  fprintf(stdout, "Request: {\n");
+//  fprintf(stdout, "method: %i\n", send_request.operation);
+//  fprintf(stdout, "exp: %s\n", send_request.experience);
+//  fprintf(stdout, "form: %s\n", send_request.formation);
+//  fprintf(stdout, "email: %s\n", send_request.email);
+//  fprintf(stdout, "city: %s\n", send_request.city);
+//  fprintf(stdout, "}\n");
   
   // loop through all the results and connect to the first we can
   for(p = servinfo; p != NULL; p = p->ai_next) {
@@ -277,8 +280,10 @@ int main(int argc, char *argv[])
     else{
       results = str2userlist(buf);
       
-      for(i=0; i<10; i++){
-        print_user(results[i]);
+      for(i=0; i<10 && results[i].email[0] != ' '; i++){
+        if(selected_method == 1)
+          print_user_skill(results[i]);
+        else print_user(results[i]);
       }
     }
   
