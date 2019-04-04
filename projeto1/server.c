@@ -75,7 +75,7 @@ void fetch_users(user* result, int count) {
 void send_result(void* value, int numbytes, int sockfd) {
   struct timeval start;
   gettimeofday(&start, NULL);
-	printf("Sending result at : %d\n", start.tv_usec);
+  printf("Sending result at : %ld.%d\n", start.tv_sec, start.tv_usec);
 	if (send(sockfd, value, numbytes, 0) == -1) {
 		perror("error sending result");
 	}
@@ -230,7 +230,7 @@ void read_request(int operation, int sockfd) {
   struct timeval stop, start;
   gettimeofday(&start, NULL);
   
-	printf("Started operation at : %d\n", start.tv_usec);
+	printf("Started operation at : %ld.%d\n", start.tv_sec, start.tv_usec);
 	user database[DB_ENTRY_SIZE];
 
 	fetch_users(database, DB_ENTRY_SIZE);
@@ -256,7 +256,7 @@ void read_request(int operation, int sockfd) {
 		break;
 	}
   gettimeofday(&stop, NULL);
-	printf("Operation ended at : %d\n", stop.tv_usec);
+	printf("Operation ended at : %ld.%d\n", stop.tv_sec, stop.tv_usec);
 }
 
 int main(void)
@@ -349,7 +349,7 @@ int main(void)
 			}
       struct timeval start;
       gettimeofday(&start, NULL);
-			printf("Received request at : %d\n", start.tv_usec);
+			printf("Received request at : %ld.%d\n", start.tv_sec, start.tv_usec);
 			read_request(req_operation, new_fd);
 
 			close(new_fd);

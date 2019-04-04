@@ -237,7 +237,7 @@ int main(int argc, char *argv[])
   // Send params
   switch(selected_method){
     case 0:
-      printf("client: sending formation\n");
+//      printf("client: sending formation\n");
       if ((numbytes = send(sockfd, &(send_request.formation), sizeof(char[50]), 0)) == -1) {
         perror("failed sending formation");
         exit(1);
@@ -245,21 +245,21 @@ int main(int argc, char *argv[])
       space_char = 1;
       break;
     case 1:
-      printf("client: sending city\n");
+//      printf("client: sending city\n");
       if ((numbytes = send(sockfd, &(send_request.city), sizeof(char[50]), 0)) == -1) {
         perror("failed sending city");
         exit(1);
       }
       break;
     case 2:
-      printf("client: sending experience\n");
+//      printf("client: sending experience\n");
       if ((numbytes = send(sockfd, &(send_request.experience), sizeof(char[50]), 0)) == -1) {
         perror("failed sending experience");
         exit(1);
       }
     case 3:
     case 5:
-      printf("client: sending email\n");
+//      printf("client: sending email\n");
       if ((numbytes = send(sockfd, &(send_request.email), sizeof(char[50]), 0)) == -1) {
         perror("failed sending email");
         exit(1);
@@ -267,12 +267,12 @@ int main(int argc, char *argv[])
       break;
   }
   gettimeofday(&stop, NULL);
-  printf("Ended send operation at : %d\n", stop.tv_usec);
-  printf("Time for send operation : %d\n", stop.tv_usec - start.tv_usec);
+  printf("Ended send operation at :  %ld.%d\n", stop.tv_sec, stop.tv_usec);
+  printf("Time for send operation :  %ld.%d\n", stop.tv_sec-start.tv_sec, stop.tv_usec-start.tv_usec);
 
   struct timeval start2;
   gettimeofday(&start2, NULL);
-  printf("Started receive operation at : %d\n", start2.tv_usec);
+  printf("Started receive operation at : %ld.%d\n", start2.tv_sec, start2.tv_usec);
   
   numbytes = -1;
   if ((numbytes = recv(sockfd, buf, MAXDATASIZE, 0)) == -1) {
@@ -281,10 +281,10 @@ int main(int argc, char *argv[])
   }
   
   gettimeofday(&stop, NULL);
-  printf("Ended receive operation at : %d\n", stop.tv_usec);
-  printf("Time for receive operation : %d\n", stop.tv_usec - start2.tv_usec);
+  printf("Ended receive operation at : %ld.%d\n", stop.tv_sec, stop.tv_usec);
+  printf("Time for receive operation : %ld.%d\n", stop.tv_sec-start2.tv_sec, stop.tv_usec-start2.tv_usec);
   
-  printf("Time for full operation: %d\n", stop.tv_usec - start.tv_usec);
+  printf("Time for full operation: %ld.%d\n", stop.tv_sec-start.tv_sec, stop.tv_usec-start.tv_usec);
   
   if(numbytes != 0) {
     
@@ -297,9 +297,9 @@ int main(int argc, char *argv[])
       results = str2userlist(buf);
       
       for(i=0; i<10 && results[i].email[0] != ' '; i++){
-        if(selected_method == 1)
-          print_user_skill(results[i]);
-        else print_user(results[i]);
+//        if(selected_method == 1)
+//          print_user_skill(results[i]);
+//        else print_user(results[i]);
       }
     }
   
