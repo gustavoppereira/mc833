@@ -57,12 +57,13 @@ void *get_in_addr(struct sockaddr *sa)
 int main(int argc, char *argv[])
 {
 	int sockfd, numbytes;
-	char buf[MAXDATASIZE];
+	char buf[MAXDATASIZE+2];
     char input[MAXINPUTSIZE];
 	struct addrinfo hints, *servinfo, *p;
 	int rv, i;
     int method_number = 6;
     int selected_method = -1;
+    int space_char = 0;
     char * method_names[] = {"user-formation","hability-city","experience-add", "experience-email", "user-all", "user-email"};
     char * method_fields[] = {"formation","city","experience", "email", "", "email"};
     request send_request;
@@ -173,6 +174,7 @@ int main(int argc, char *argv[])
                 perror("failed sending formation");
                 exit(1);
             }
+            space_char = 1;
             break;
         case 1:
             printf("client: sending city\n");
@@ -197,15 +199,31 @@ int main(int argc, char *argv[])
             break;
     }
 
-	if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
-	    perror("recv");
-	    exit(1);
-	}
+    numbytes = -1;
+    while(numbytes != 0) {
+        
+        if ((numbytes = recv(sockfd, buf, MAXDATASIZE, 0)) == -1) {
+            perror("recv");
+            exit(1);
+        }
+        if(numbytes != 0) {
 
-	buf[numbytes] = '\0';
-
-	printf("client: received '%s'\n",buf);
-
+            if (space_char) {
+                buf[numbytes] = ' ';
+                buf[numbytes+1] = '\0';
+                space_char = 0;
+            }
+            else {
+                if(selected_method == 0)
+                    space_char = 1;
+                buf[numbytes] = '\n';
+                buf[numbytes+1] = '\0';
+            }
+            
+            printf("%s",buf);
+        }
+    }
+    
 	close(sockfd);
 
 	return 0;
