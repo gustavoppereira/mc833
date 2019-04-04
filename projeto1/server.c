@@ -112,19 +112,31 @@ void list_by_formation(user* database, int sockfd) {
 
 	if (recv(sockfd, &formation, 50, 0) == -1) {
 		perror("list_by_formation: recv formation");
+		exit(1);
 	}
 	printf("Executing list_by_formation (%s)\n", formation);
 	for(int i = 0; i < DB_ENTRY_SIZE; i++) {
 		if (strcmp(database[i].formation, formation) == 0) {
-			// print_user(database[i]);
 			send_result(&database[i].first_name, 50, sockfd);
 			send_result(&database[i].last_name, 50, sockfd);
 		}
 	}
+	shutdown(sockfd, 1);
 }
 
-void list_skills_by_city(char* city, int sockfd) {
+void list_skills_by_city(user* database, int sockfd) {
+	char city[50];
 
+	if(recv(sockfd, &city, 50, 0) == -1) {
+		perror("list_skills_by_city: recv city");
+		exit(1);
+	}
+	for(int i = 0; i < DB_ENTRY_SIZE; i++) {
+		if (strcmp(database[i].city, city) == 0) {
+			send_result(&database[i].city, 50, sockfd);
+		}
+	}
+	shutdown(sockfd, 1);
 }
 
 void add_skill(char* email, int sockfd) {
@@ -156,7 +168,7 @@ void read_request(int operation, int sockfd) {
 			list_by_formation(database, sockfd);
 		break;
 		case 1:
-			// list_skills_by_city(req.city, sockfd);
+			list_skills_by_city(database, sockfd);
 		break;
 		case 2:
 			// add_skill(req.email, sockfd);
