@@ -21,6 +21,8 @@
 
 #define DB_ENTRY_SIZE 10
 
+#define MAXUSERBYTES 1024
+
 struct user {
 	char email[50];
 	char first_name[50];
@@ -80,7 +82,7 @@ void fetch_users(user* result, int count) {
 }
 
 void send_result(void* value, int numbytes, int sockfd) {
-	if (sendall(sockfd, value, numbytes) == -1) {
+	if (send(sockfd, value, numbytes, 0) == -1) {
 		perror("error sending result");
 	}
 }
@@ -101,20 +103,20 @@ char *user2str (user ap)
   /* get lenght of string required to hold struct values */
   size_t len = 0;
   len = snprintf (NULL, len, "%s,%s,%s,%s,%s,%s,%s,%s", ap.email, ap.first_name, ap.last_name, ap.image, ap.city, ap.formation, ap.skills, ap.experience);
-  
+
   /* allocate/validate string to hold all values (+1 to null-terminate) */
   char *apstr = calloc (1, sizeof *apstr * len + 1);
   if (!apstr) {
     fprintf (stderr, "%s() error: virtual memory allocation failed.\n", __func__);
   }
-  
+
   /* write/validate struct values to apstr */
   if (snprintf (apstr, len + 1, "%s,%s,%s,%s,%s,%s,%s,%s", ap.email, ap.first_name, ap.last_name, ap.image, ap.city, ap.formation, ap.skills, ap.experience) > len + 1)
   {
     fprintf (stderr, "%s() error: snprintf returned truncated result.\n", __func__);
     return NULL;
   }
-  
+	printf("User -> %s\n", apstr);
   return apstr;
 }
 
@@ -129,23 +131,29 @@ void print_database(user* database) {
 	}
 }
 
+void concat_user(char* result, user data) {
+	if(strcmp(result, "") == 0) {
+		strcpy(result, user2str(data));
+	} else {
+		strcat(result, ";");
+		strcat(result, user2str(data));
+	}
+}
+
 void list_by_formation(user* database, int sockfd) {
 	char formation[50];
+	char result[MAXUSERBYTES] = "";
 
 	if (recv(sockfd, &formation, 50, 0) == -1) {
 		perror("list_by_formation: recv formation");
 		exit(1);
 	}
-	printf("Executing list_by_formation (%s)\n", formation);
 	for(int i = 0; i < DB_ENTRY_SIZE; i++) {
 		if (strcmp(database[i].formation, formation) == 0) {
-      print_user(database[i]);
-      
-			send_result(&database[i].first_name, 50, sockfd);
-      send_result(&database[i].last_name, 50, sockfd);
+			concat_user(result, database[i]);
 		}
 	}
-	shutdown(sockfd, 1);
+	send_result(&result, MAXUSERBYTES, sockfd);
 }
 
 void list_skills_by_city(user* database, int sockfd) {
@@ -160,7 +168,6 @@ void list_skills_by_city(user* database, int sockfd) {
 			send_result(&database[i].city, 50, sockfd);
 		}
 	}
-	shutdown(sockfd, 1);
 }
 
 void add_skill(char* email, int sockfd) {
