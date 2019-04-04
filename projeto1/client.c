@@ -54,6 +54,53 @@ void *get_in_addr(struct sockaddr *sa)
   return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
 
+void print_user(user data) {
+  printf("user.first_name : %s\n", data.first_name);
+  printf("user.last_name : %s\n\n", data.last_name);
+}
+
+user str2user (char* str) {
+  char delim[] = ",";
+  
+  char *ptr = strtok(str, delim);
+  int i = 0 ;
+  user usr;
+  
+  while(ptr != NULL)
+  {
+    switch(i){
+      case 0:
+        strcpy(usr.email,ptr);
+        break;
+      case 1:
+        strcpy(usr.first_name,ptr);
+        break;
+        
+    }
+    
+    i = i++;
+    ptr = strtok(NULL, delim);
+  }
+  return usr;
+}
+
+user* str2userlist(char* str){
+  char delim[] = ";";
+  
+  char *ptr = strtok(str, delim);
+  int i = 0 ;
+  user *usrs = calloc(1, sizeof *usrs * 10);
+  
+  while(ptr != NULL)
+  {
+    usrs[i] = str2user(ptr);
+    
+    i = i++;
+    ptr = strtok(NULL, delim);
+  }
+  return usrs;
+}
+
 int main(int argc, char *argv[])
 {
   int sockfd, numbytes;
@@ -64,6 +111,7 @@ int main(int argc, char *argv[])
   int method_number = 6;
   int selected_method = -1;
   int space_char = 0;
+  user* results;
   char * method_names[] = {"user-formation","hability-city","experience-add", "experience-email", "user-all", "user-email"};
   char * method_fields[] = {"formation","city","experience", "email", "", "email"};
   request send_request;
@@ -211,14 +259,10 @@ int main(int argc, char *argv[])
       
       buf[numbytes] = '\0';
       
-      if (space_char) {
-        printf("%s ",buf);
-        space_char = 0;
-      }
-      else {
-        printf("%s\n",buf);
-        if(selected_method == 0)
-          space_char = 1;
+      results = str2userlist(buf);
+      
+      for(i=0; i<10; i++){
+        print_user(results[i]);
       }
       
     }
