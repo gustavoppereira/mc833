@@ -117,6 +117,8 @@ void list_by_formation(user* database, int sockfd) {
 	printf("Executing list_by_formation (%s)\n", formation);
 	for(int i = 0; i < DB_ENTRY_SIZE; i++) {
 		if (strcmp(database[i].formation, formation) == 0) {
+      print_user(database[i]);
+      
 			send_result(&database[i].first_name, 50, sockfd);
 			send_result(&database[i].last_name, 50, sockfd);
 		}
@@ -161,7 +163,7 @@ void read_request(int operation, int sockfd) {
 
 	fetch_users(database, DB_ENTRY_SIZE);
 
-	print_database(database);
+//  print_database(database);
 
 	switch (operation) {
 		case 0:
