@@ -59,63 +59,57 @@ void print_user(user data) {
   printf("user.last_name : %s\n\n", data.last_name);
 }
 
-user str2user (char* str) {
-  char delim[] = ",";
-  
-  char *ptr = strtok(str, delim);
-  int i = 0 ;
-  user usr;
-  
-  while(ptr != NULL)
-  {
-    switch(i){
-      case 0:
-        strcpy(usr.email,ptr);
-        break;
-      case 1:
-        strcpy(usr.first_name,ptr);
-        break;
-      case 2:
-        strcpy(usr.last_name,ptr);
-        break;
-      case 3:
-        strcpy(usr.image,ptr);
-        break;
-      case 4:
-        strcpy(usr.city,ptr);
-        break;
-      case 5:
-        strcpy(usr.formation,ptr);
-        break;
-      case 6:
-        strcpy(usr.skills,ptr);
-        break;
-      case 7:
-        strcpy(usr.experience,ptr);
-        break;
-        
-    }
-    
-    i++;
-    ptr = strtok(NULL, delim);
-  }
-  return usr;
-}
-
 user* str2userlist(char* str){
-  char delim[] = ";";
+  char delim[] = ";,";
+  char copy[1024];
+  
+  strcpy(copy, str);
   
   char *ptr = strtok(str, delim);
-  int i = 0 ;
+  int i = 0, end = 0;
   user *usrs = calloc(1, sizeof *usrs * 10);
   
-  while(ptr != NULL)
+  while(ptr != NULL && !end)
   {
-    printf("user: %s\n", ptr);
-    usrs[i] = str2user(ptr);
+    user usr;
     
-    i++;
+    printf("email: %s\n", ptr);
+    strcpy(usr.email,ptr);
+    
     ptr = strtok(NULL, delim);
+    printf("fn: %s\n", ptr);
+    strcpy(usr.first_name,ptr);
+    
+    ptr = strtok(NULL, delim);
+    printf("ln: %s\n", ptr);
+    strcpy(usr.last_name,ptr);
+    
+    ptr = strtok(NULL, delim);
+    printf("img: %s\n", ptr);
+    strcpy(usr.image,ptr);
+    
+    ptr = strtok(NULL, delim);
+    printf("city: %s\n", ptr);
+    strcpy(usr.city,ptr);
+    
+    ptr = strtok(NULL, delim);
+    printf("form: %s\n", ptr);
+    strcpy(usr.formation,ptr);
+    
+    ptr = strtok(NULL, delim);
+    printf("skills: %s\n", ptr);
+    strcpy(usr.skills,ptr);
+    
+    ptr = strtok(NULL, delim);
+    printf("exp: %s\n", ptr);
+    strcpy(usr.experience,ptr);
+    
+    usrs[i] = usr;
+    
+    ptr = strtok(NULL, delim);
+    if(ptr == NULL || i == 10)
+      end = 1;
+    i++;
   }
   return usrs;
 }
@@ -276,14 +270,17 @@ int main(int argc, char *argv[])
     
     buf[numbytes] = '\0';
     
-    printf("%s\n", buf);
-    
-    results = str2userlist(buf);
-    
-    for(i=0; i<10; i++){
-      print_user(results[i]);
+    if(selected_method == 4){
+      printf("%s\n", buf);
     }
-    
+    else{
+      results = str2userlist(buf);
+      
+      for(i=0; i<10; i++){
+        print_user(results[i]);
+      }
+    }
+  
   }
   
   close(sockfd);
