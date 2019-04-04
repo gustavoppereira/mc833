@@ -120,7 +120,8 @@ void list_by_formation(user* database, int sockfd) {
       print_user(database[i]);
       
 			send_result(&database[i].first_name, 50, sockfd);
-			send_result(&database[i].last_name, 50, sockfd);
+      sleep(1);
+      send_result(&database[i].last_name, 50, sockfd);
 		}
 	}
 	shutdown(sockfd, 1);
