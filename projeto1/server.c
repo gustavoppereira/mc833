@@ -188,25 +188,26 @@ void list_skills_by_city(user* database, int sockfd) {
 	send_result(&result, MAXUSERBYTES, sockfd);
 }
 
-void add_skill(user* database, int sockfd) {
-	char email[50], skill[50];
+void add_experience(user* database, int sockfd) {
+	char email[50], experience[50];
 	FILE *file = open_file("w+");
 	if (file == NULL) {
-		perror("add_skill: opening file");
+		perror("add_experience: opening file");
 		exit(1);
 	}
 
+	if(recv(sockfd, &experience, 50, 0) == -1) {
+		perror("add_skill: recv experience");
+		exit(1);
+	}
 	if(recv(sockfd, &email, 50, 0) == -1) {
 		perror("add_skill: recv email");
 		exit(1);
 	}
-	if(recv(sockfd, &skill, 50, 0) == -1) {
-		perror("add_skill: recv skill");
-		exit(1);
-	}
+	printf("Updating experience(%s) in email(%s)\n", experience, email);
 	for(int i = 0; i < DB_ENTRY_SIZE; i++) {
 		if(strcmp(database[i].email, email) == 0) {
-			 concat_string(database[i].skills, skill);
+			 concat_string(database[i].experience, experience);
 		}
 	}
 	replace_database(database, file);
@@ -270,7 +271,7 @@ void read_request(int operation, int sockfd) {
 			list_skills_by_city(database, sockfd);
 		break;
 		case 2:
-			add_skill(database, sockfd);
+			add_experience(database, sockfd);
 		break;
 		case 3:
 			get_experience(database, sockfd);
