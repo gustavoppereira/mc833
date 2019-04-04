@@ -35,15 +35,6 @@ struct user {
 	char experience[200];
 };
 
-struct request {
-	char experience[200];
-	char formation[50];
-	char email[50];
-	char city[50];
-	int operation;
-};
-
-typedef struct request request;
 typedef struct user user;
 
 
@@ -83,20 +74,10 @@ void fetch_users(user* result, int count) {
 }
 
 void send_result(void* value, int numbytes, int sockfd) {
+	printf("Sending result at : %lf\n", (double) clock());
 	if (send(sockfd, value, numbytes, 0) == -1) {
 		perror("error sending result");
 	}
-}
-
-void send_user(user* data, int sockfd) {
-	send_result(data->email, 50, sockfd);
-	send_result(data->first_name, 50, sockfd);
-	send_result(data->last_name, 50, sockfd);
-	send_result(data->image, 50, sockfd);
-	send_result(data->city, 50, sockfd);
-	send_result(data->formation, 50, sockfd);
-	send_result(data->skills, 50, sockfd);
-	send_result(data->experience, 200, sockfd);
 }
 
 char *user2str (user ap)
@@ -121,17 +102,6 @@ char *user2str (user ap)
   return apstr;
 }
 
-void print_user(user data) {
-	printf("user.first_name : %s\n", data.first_name);
-	printf("user.last_name : %s\n\n", data.last_name);
-}
-
-void print_database(user* database) {
-	for(int i = 0; i < DB_ENTRY_SIZE; i++) {
-		print_user(database[i]);
-	}
-}
-
 void concat_user(char* result, user data) {
 	if(strcmp(result, "") == 0) {
 		strcpy(result, user2str(data));
@@ -150,7 +120,7 @@ void concat_string(char* result, char* data) {
 	}
 }
 
-void replace_database(user* database, FILE *file) {
+void wipe_database(user* database, FILE *file) {
 	for(int i = 0; i < DB_ENTRY_SIZE; i++) {
 		fwrite(&database[i], sizeof(user), 1, file);
 	}
@@ -210,7 +180,7 @@ void add_experience(user* database, int sockfd) {
 			 concat_string(database[i].experience, experience);
 		}
 	}
-	replace_database(database, file);
+	wipe_database(database, file);
 	fclose(file);
 }
 
@@ -256,12 +226,10 @@ void get_user(user* database, int sockfd) {
 }
 
 void read_request(int operation, int sockfd) {
-	printf("Reading request for operation : %d\n", operation);
+	printf("Started operation at : %lf\n", (double) clock());
 	user database[DB_ENTRY_SIZE];
 
 	fetch_users(database, DB_ENTRY_SIZE);
-
-//  print_database(database);
 
 	switch (operation) {
 		case 0:
@@ -376,12 +344,9 @@ int main(void)
 			if ((numbytes = recv(new_fd, &req_operation, sizeof(int), 0)) == -1) {
 				perror("error receiving request");
 			}
-			start = clock();
+			printf("Received request at : %lf\n", (double) clock());
 			read_request(req_operation, new_fd);
-			end = clock();
 
-			cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
-			printf("Time to process request : %lf\n", cpu_time_used);
 			close(new_fd);
 			exit(0);
 		}
