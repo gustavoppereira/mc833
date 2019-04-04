@@ -66,30 +66,60 @@ void *get_in_addr(struct sockaddr *sa)
 	return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
 
-FILE *open_file() {
-	return fopen("database", "r+");
+FILE *open_file(char* mode) {
+	return fopen("database", mode);
 }
 
-void list_by_formation(char* formation, int sockfd) {
-	printf("Executing list_by_formation (%s)\n", formation);
-	FILE *stream = open_file();
-	user database[DB_ENTRY_SIZE], result[DB_ENTRY_SIZE];
-	int count = 0;
+void fetch_users(user* result, int count) {
+	FILE *stream = open_file("r+");
 
-	if(!fread(database, sizeof(user), DB_ENTRY_SIZE, stream)) {
+	if(!fread(result, sizeof(user), count, stream)) {
 		perror("Database error");
 	}
-
 	fclose(stream);
+}
 
+void send_result(void* value, int numbytes, int sockfd) {
+	if (send(sockfd, value, numbytes, 0) == -1) {
+		perror("error sending result");
+	}
+}
+
+void send_user(user* data, int sockfd) {
+	send_result(data->email, 50, sockfd);
+	send_result(data->first_name, 50, sockfd);
+	send_result(data->last_name, 50, sockfd);
+	send_result(data->image, 50, sockfd);
+	send_result(data->city, 50, sockfd);
+	send_result(data->formation, 50, sockfd);
+	send_result(data->skills, 50, sockfd);
+	send_result(data->experience, 200, sockfd);
+}
+
+void print_user(user data) {
+	printf("user.first_name : %s\n", data.first_name);
+	printf("user.last_name : %s\n\n", data.last_name);
+}
+
+void print_database(user* database) {
+	for(int i = 0; i < DB_ENTRY_SIZE; i++) {
+		print_user(database[i]);
+	}
+}
+
+void list_by_formation(user* database, int sockfd) {
+	char formation[50];
+
+	if (recv(sockfd, &formation, 50, 0) == -1) {
+		perror("list_by_formation: recv formation");
+	}
+	printf("Executing list_by_formation (%s)\n", formation);
 	for(int i = 0; i < DB_ENTRY_SIZE; i++) {
 		if (strcmp(database[i].formation, formation) == 0) {
-			result[count++] = database[i];
+			// print_user(database[i]);
+			send_result(&database[i].first_name, 50, sockfd);
+			send_result(&database[i].last_name, 50, sockfd);
 		}
-	}
-
-	if (send(sockfd, &result, count * sizeof(user), 0) == -1) {
-		perror("list_by_formation");
 	}
 }
 
@@ -113,36 +143,32 @@ void get_user(char* email, int sockfd) {
 
 }
 
-void read_request(request req, int sockfd) {
-	printf("Reading request for operation : %d\n", req.operation);
-    
-    
-    fprintf(stdout, "Request: {\n");
-    fprintf(stdout, "method: %i\n", req.operation);
-    fprintf(stdout, "exp: %s\n", req.experience);
-    fprintf(stdout, "form: %s\n", req.formation);
-    fprintf(stdout, "email: %s\n", req.email);
-    fprintf(stdout, "city: %s\n", req.city);
-    fprintf(stdout, "}\n");
-    
-	switch (req.operation) {
+void read_request(int operation, int sockfd) {
+	printf("Reading request for operation : %d\n", operation);
+	user database[DB_ENTRY_SIZE];
+
+	fetch_users(database, DB_ENTRY_SIZE);
+
+	print_database(database);
+
+	switch (operation) {
 		case 0:
-			list_by_formation(req.formation, sockfd);
+			list_by_formation(database, sockfd);
 		break;
 		case 1:
-			list_skills_by_city(req.city, sockfd);
+			// list_skills_by_city(req.city, sockfd);
 		break;
 		case 2:
-			add_skill(req.email, sockfd);
+			// add_skill(req.email, sockfd);
 		break;
 		case 3:
-			get_experience(req.email, sockfd);
+			// get_experience(req.email, sockfd);
 		break;
 		case 4:
-			list_all(sockfd);
+			// list_all(sockfd);
 		break;
 		case 5:
-			get_user(req.email, sockfd);
+			// get_user(req.email, sockfd);
 		break;
 	}
 }
@@ -163,7 +189,7 @@ int main(void)
 	user input1;
 	user input2;
 
-	request req;
+	int req_operation;
 	int numbytes = 0;
 
 	memset(&hints, 0, sizeof hints);
@@ -237,20 +263,11 @@ int main(void)
 		if (!fork()) { // this is the child process
 			close(sockfd); // child doesn't need the listener
 
-			if ((numbytes = recv(new_fd, &req, sizeof(request), 0)) == -1) {
+			if ((numbytes = recv(new_fd, &req_operation, sizeof(int), 0)) == -1) {
 				perror("error receiving request");
 			}
 
-			read_request(req, new_fd);
-
-			// if (send(new_fd, "Hello, world!", 13, 0) == -1)
-			// 	perror("send");
-			//
-			// if ((numbytes = recv(new_fd, buffer, 100, 0)) == -1) {
-			// 	perror("recv");
-			// }
-
-			printf("server received request with operation : %d\n", req.operation);
+			read_request(req_operation, new_fd);
 
 			close(new_fd);
 			exit(0);
