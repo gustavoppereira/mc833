@@ -17,7 +17,7 @@
 
 #define PORT "3490" // the port client will be connecting to
 
-#define MAXDATASIZE 100 // max number of bytes we can get at once
+#define MAXDATASIZE 1024 // max number of bytes we can get at once
 
 #define MAXINPUTSIZE 50 // max size of input
 
@@ -75,6 +75,24 @@ user str2user (char* str) {
       case 1:
         strcpy(usr.first_name,ptr);
         break;
+      case 2:
+        strcpy(usr.last_name,ptr);
+        break;
+      case 3:
+        strcpy(usr.image,ptr);
+        break;
+      case 4:
+        strcpy(usr.city,ptr);
+        break;
+      case 5:
+        strcpy(usr.formation,ptr);
+        break;
+      case 6:
+        strcpy(usr.skills,ptr);
+        break;
+      case 7:
+        strcpy(usr.experience,ptr);
+        break;
         
     }
     
@@ -93,6 +111,7 @@ user* str2userlist(char* str){
   
   while(ptr != NULL)
   {
+    printf("user: %s\n", ptr);
     usrs[i] = str2user(ptr);
     
     i++;
@@ -248,24 +267,23 @@ int main(int argc, char *argv[])
   }
   
   numbytes = -1;
-  while(numbytes != 0) {
+  if ((numbytes = recv(sockfd, buf, MAXDATASIZE, 0)) == -1) {
+    perror("recv");
+    exit(1);
+  }
+  
+  if(numbytes != 0) {
     
-    if ((numbytes = recv(sockfd, buf, MAXDATASIZE, 0)) == -1) {
-      perror("recv");
-      exit(1);
+    buf[numbytes] = '\0';
+    
+    printf("%s\n", buf);
+    
+    results = str2userlist(buf);
+    
+    for(i=0; i<10; i++){
+      print_user(results[i]);
     }
     
-    if(numbytes != 0) {
-      
-      buf[numbytes] = '\0';
-      
-      results = str2userlist(buf);
-      
-      for(i=0; i<10; i++){
-        print_user(results[i]);
-      }
-      
-    }
   }
   
   close(sockfd);
