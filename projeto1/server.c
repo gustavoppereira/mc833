@@ -102,6 +102,10 @@ char *user2str (user ap)
   return apstr;
 }
 
+double timestamp() {
+	return (double) clock() / (CLOCKS_PER_SEC * 1000);
+}
+
 void concat_user(char* result, user data) {
 	if(strcmp(result, "") == 0) {
 		strcpy(result, user2str(data));
@@ -226,7 +230,10 @@ void get_user(user* database, int sockfd) {
 }
 
 void read_request(int operation, int sockfd) {
-	printf("Started operation at : %lf\n", (double) clock());
+	double start;
+
+	start = timestamp();
+	printf("Started operation at : %lf\n", start);
 	user database[DB_ENTRY_SIZE];
 
 	fetch_users(database, DB_ENTRY_SIZE);
@@ -251,6 +258,7 @@ void read_request(int operation, int sockfd) {
 			get_user(database, sockfd);
 		break;
 	}
+	printf("Operation ended at : %lf\n", timestamp() - start);
 }
 
 int main(void)
@@ -344,7 +352,7 @@ int main(void)
 			if ((numbytes = recv(new_fd, &req_operation, sizeof(int), 0)) == -1) {
 				perror("error receiving request");
 			}
-			printf("Received request at : %lf\n", (double) clock());
+			printf("Received request at : %lf\n", timestamp());
 			read_request(req_operation, new_fd);
 
 			close(new_fd);
