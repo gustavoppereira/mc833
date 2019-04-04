@@ -136,12 +136,12 @@ int main(int argc, char *argv[])
   for(p = servinfo; p != NULL; p = p->ai_next) {
     if ((sockfd = socket(p->ai_family, p->ai_socktype,
                          p->ai_protocol)) == -1) {
-      perror("client: socket");
+      perror("client");
       continue;
     }
     
     if (connect(sockfd, p->ai_addr, p->ai_addrlen) == -1) {
-      perror("client: connect");
+      perror("client");
       close(sockfd);
       continue;
     }
@@ -209,19 +209,18 @@ int main(int argc, char *argv[])
     
     if(numbytes != 0) {
       
+      buf[numbytes] = '\0';
+      
       if (space_char) {
-        buf[numbytes] = ' ';
-        buf[numbytes+1] = '\0';
+        printf("%s ",buf);
         space_char = 0;
       }
       else {
+        printf("%s\n",buf);
         if(selected_method == 0)
           space_char = 1;
-        buf[numbytes] = '\n';
-        buf[numbytes+1] = '\0';
       }
       
-      printf("%s",buf);
     }
   }
   
