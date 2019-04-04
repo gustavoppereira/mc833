@@ -54,8 +54,8 @@ void *get_in_addr(struct sockaddr *sa)
   return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
 
-double timestamp() {
-  return (double) clock() / (CLOCKS_PER_SEC / 1000);
+unsigned long timestamp() {
+  return (unsigned long) time(NULL);
 }
 
 void print_user(user data) {
@@ -235,10 +235,10 @@ int main(int argc, char *argv[])
     exit(1);
   }
   
-  double start, end;
+  unsigned long start, end;
   
   start = timestamp();
-  printf("Started send operation at : %lf\n", start);
+  printf("Started send operation at : %lu\n", start);
   // Send params
   switch(selected_method){
     case 0:
@@ -272,12 +272,12 @@ int main(int argc, char *argv[])
       break;
   }
   end = timestamp();
-  printf("Ended send operation at : %lf\n", end);
-  printf("Time for send operation : %lf\n", end - start);
+  printf("Ended send operation at : %lu\n", end);
+  printf("Time for send operation : %lu\n", end - start);
 
-  double start2;
+  unsigned long start2;
   start2 = timestamp();
-  printf("Started receive operation at : %lf\n", start2);
+  printf("Started receive operation at : %lu\n", start2);
   
   numbytes = -1;
   if ((numbytes = recv(sockfd, buf, MAXDATASIZE, 0)) == -1) {
@@ -286,10 +286,10 @@ int main(int argc, char *argv[])
   }
   
   end = timestamp();
-  printf("Ended receive operation at : %lf\n", end);
-  printf("Time for receive operation : %lf\n", end - start2);
+  printf("Ended receive operation at : %lu\n", end);
+  printf("Time for receive operation : %lu\n", end - start2);
   
-  printf("Time for full operation: %lf\n", end - start);
+  printf("Time for full operation: %lu\n", end - start);
   
   if(numbytes != 0) {
     
