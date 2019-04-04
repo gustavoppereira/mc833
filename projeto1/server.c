@@ -14,6 +14,7 @@
 #include <arpa/inet.h>
 #include <sys/wait.h>
 #include <signal.h>
+#include <time.h>
 
 #define PORT "3490"  // the port users will be connecting to
 
@@ -144,7 +145,7 @@ void concat_string(char* result, char* data) {
 	if(strcmp(result, "") == 0) {
 		strcpy(result, data);
 	} else {
-		strcat(result, ";");
+		strcat(result, "-");
 		strcat(result, data);
 	}
 }
@@ -269,16 +270,16 @@ void read_request(int operation, int sockfd) {
 			list_skills_by_city(database, sockfd);
 		break;
 		case 2:
-			// add_skill(req.email, sockfd);
+			add_skill(database, sockfd);
 		break;
 		case 3:
-			// get_experience(req.email, sockfd);
+			get_experience(database, sockfd);
 		break;
 		case 4:
-			// list_all(sockfd);
+			list_all(database, sockfd);
 		break;
 		case 5:
-			// get_user(req.email, sockfd);
+			get_user(database, sockfd);
 		break;
 	}
 }
@@ -294,10 +295,8 @@ int main(void)
 	char s[INET6_ADDRSTRLEN];
 	int rv;
 
-	FILE *outfile;
-
-	user input1;
-	user input2;
+	clock_t start, end;
+  double cpu_time_used;
 
 	int req_operation;
 	int numbytes = 0;
@@ -376,9 +375,12 @@ int main(void)
 			if ((numbytes = recv(new_fd, &req_operation, sizeof(int), 0)) == -1) {
 				perror("error receiving request");
 			}
-
+			start = clock();
 			read_request(req_operation, new_fd);
+			end = clock();
 
+			cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+			printf("Time to process request : %lf\n", cpu_time_used);
 			close(new_fd);
 			exit(0);
 		}
