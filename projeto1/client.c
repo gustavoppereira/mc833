@@ -228,6 +228,7 @@ int main(int argc, char *argv[])
     exit(1);
   }
   
+  // Send params
   switch(selected_method){
     case 0:
       printf("client: sending formation\n");
@@ -270,7 +271,7 @@ int main(int argc, char *argv[])
     
     buf[numbytes] = '\0';
     
-    if(selected_method == 4){
+    if(selected_method == 3){
       printf("%s\n", buf);
     }
     else{
