@@ -112,8 +112,7 @@ void concat_user(char* result, user data) {
 	}
 }
 
-void get_by_email(user* database, int sockfd) {
-	char email[50];
+void get_by_email(char* email, user* database, int sockfd) {
 	char result[MAXUSERBYTES] = "";
 
 	if (recv(sockfd, &email, 50, 0) == -1) {
@@ -128,7 +127,7 @@ void get_by_email(user* database, int sockfd) {
 	send_result(&result, MAXUSERBYTES, sockfd);
 }
 
-void read_request(int operation, int sockfd) {
+void read_request(char* email, int sockfd) {
   struct timeval stop, start;
   gettimeofday(&start, NULL);
 
@@ -137,11 +136,8 @@ void read_request(int operation, int sockfd) {
 
 	fetch_users(database, DB_ENTRY_SIZE);
 
-	switch (operation) {
-		case 0:
-			get_by_email(database, sockfd);
-		break;
-	}
+	get_by_email(email, database, sockfd);
+
   gettimeofday(&stop, NULL);
 	printf("Operation ended at : %ld.%d\n", stop.tv_sec, stop.tv_usec);
 }
@@ -231,13 +227,13 @@ int main(void)
 		if (!fork()) { // this is the child process
 			close(sockfd); // child doesn't need the listener
 
-			if ((numbytes = recv(new_fd, &req_operation, sizeof(int), 0)) == -1) {
+			if ((numbytes = recv(new_fd, email, sizeof(int), 0)) == -1) {
 				perror("error receiving request");
 			}
       struct timeval start;
       gettimeofday(&start, NULL);
 			printf("Received request at : %ld.%d\n", start.tv_sec, start.tv_usec);
-			read_request(req_operation, new_fd);
+			read_request(email, new_fd);
 
 			close(new_fd);
 			exit(0);
