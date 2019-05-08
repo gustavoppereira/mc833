@@ -15,12 +15,30 @@
 
 #define SERVERPORT "4950"	// the port users will be connecting to
 
-int main(int argc, char *argv[])
-{
+#define MAXDATASIZE 1024 // max number of bytes we can get at once
+
+#define MAXINPUTSIZE 50 // max size of input
+
+struct user {
+  char email[50];
+  char first_name[50];
+  char last_name[50];
+  char image[50];
+  char city[50];
+  char formation[50];
+  char skills[50];
+  char experience[200];
+};
+
+typedef struct user user;
+
+int main(int argc, char *argv[]) {
 	int sockfd;
 	struct addrinfo hints, *servinfo, *p;
 	int rv;
 	int numbytes;
+
+	char result[MAXDATASIZE];
 
 	if (argc != 3) {
 		fprintf(stderr,"usage: talker hostname message\n");
@@ -58,9 +76,16 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
+	printf("talker: sent %d bytes to %s\n", numbytes, argv[1]);
+
+	if ((numbytes = recvfrom(sockfd, result, MAXDATASIZE, 0, p->ai_addr, &p->ai_addrlen)) == -1) {
+		perror("error receiving response");
+		exit(1);
+	}
+
 	freeaddrinfo(servinfo);
 
-	printf("talker: sent %d bytes to %s\n", numbytes, argv[1]);
+	printf("talker: received %s\n", result);
 	close(sockfd);
 
 	return 0;

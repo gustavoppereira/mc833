@@ -157,7 +157,7 @@ int main(void)
 	char s[INET6_ADDRSTRLEN];
 	int rv;
 
-	int req_operation;
+	char email[50];
 	int numbytes = 0;
 
 	memset(&hints, 0, sizeof hints);
