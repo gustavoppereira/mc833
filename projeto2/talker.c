@@ -69,6 +69,10 @@ int main(int argc, char *argv[]) {
 		fprintf(stderr, "talker: failed to create socket\n");
 		return 2;
 	}
+  
+  struct timeval start, stop;
+  gettimeofday(&start, NULL);
+  printf("%ld.%06d,", start.tv_sec, start.tv_usec);
 
 	if ((numbytes = sendto(sockfd, argv[2], strlen(argv[2]), 0,
 			 p->ai_addr, p->ai_addrlen)) == -1) {
@@ -76,16 +80,28 @@ int main(int argc, char *argv[]) {
 		exit(1);
 	}
 
-	printf("talker: sent %d bytes to %s\n", numbytes, argv[1]);
+  gettimeofday(&stop, NULL);
+  printf("%ld.%06d,", stop.tv_sec, stop.tv_usec);
+  printf("%ld.%06d,", stop.tv_sec-start.tv_sec, stop.tv_usec-start.tv_usec);
+//  printf("talker: sent %d bytes to %s\n", numbytes, argv[1]);
+  
+  
+  gettimeofday(&start, NULL);
+  printf("%ld.%06d,", start.tv_sec, start.tv_usec);
 
 	if ((numbytes = recvfrom(sockfd, result, MAXDATASIZE, 0, p->ai_addr, &p->ai_addrlen)) == -1) {
 		perror("error receiving response");
 		exit(1);
 	}
+  
+  
+  gettimeofday(&stop, NULL);
+  printf("%ld.%06d,", stop.tv_sec, stop.tv_usec);
+  printf("%ld.%06d,", stop.tv_sec-start.tv_sec, stop.tv_usec-start.tv_usec);
 
 	freeaddrinfo(servinfo);
 
-	printf("talker: received %s\n", result);
+//  printf("talker: received %s\n", result);
 	close(sockfd);
 
 	return 0;

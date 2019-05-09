@@ -58,7 +58,7 @@ void fetch_users(user* result, int count) {
 void send_result(void* value, int numbytes, int sockfd, struct sockaddr_storage addr, socklen_t addr_len) {
   struct timeval start;
   gettimeofday(&start, NULL);
-  printf("Sending result at : %ld.%d\n", start.tv_sec, start.tv_usec);
+  printf("%ld.%06d\n", start.tv_sec, start.tv_usec);
 	if (sendto(sockfd, value, numbytes, 0, (struct sockaddr_storage *)&addr, addr_len) == -1) {
 		perror("error sending result");
 	}
@@ -110,7 +110,7 @@ void read_request(char* email, int sockfd, struct sockaddr_storage addr, socklen
   struct timeval stop, start;
   gettimeofday(&start, NULL);
 
-	printf("Started operation at : %ld.%d\n", start.tv_sec, start.tv_usec);
+	printf("%ld.%06d,", start.tv_sec, start.tv_usec);
 	user database[DB_ENTRY_SIZE];
 
 	fetch_users(database, DB_ENTRY_SIZE);
@@ -118,7 +118,8 @@ void read_request(char* email, int sockfd, struct sockaddr_storage addr, socklen
 	get_by_email(database, email, sockfd, addr, addr_len);
 
   gettimeofday(&stop, NULL);
-	printf("Operation ended at : %ld.%d\n", stop.tv_sec, stop.tv_usec);
+	printf("%ld.%06d,", stop.tv_sec, stop.tv_usec);
+  printf("%ld.%06d\n", stop.tv_sec-start2.tv_sec, stop.tv_usec-start2.tv_usec);
 }
 
 int main(void)
@@ -168,7 +169,7 @@ int main(void)
 
 	freeaddrinfo(servinfo);
 
-	printf("listener: waiting to recvfrom...\n");
+//  printf("listener: waiting to recvfrom...\n");
 
 	addr_len = sizeof their_addr;
 	if ((numbytes = recvfrom(sockfd, email, MAXUSERBYTES-1 , 0,
@@ -177,7 +178,7 @@ int main(void)
 		exit(1);
 	}
 
-	printf("Received email %s\n", email);
+//  printf("Received email %s\n", email);
 
 	read_request(email, sockfd, their_addr, addr_len);
 
