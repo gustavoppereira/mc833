@@ -99,7 +99,7 @@ char *user2str (user ap)
     fprintf (stderr, "%s() error: snprintf returned truncated result.\n", __func__);
     return NULL;
   }
-	printf("User -> %s\n", apstr);
+//  printf("User -> %s\n", apstr);
   return apstr;
 }
 
@@ -136,7 +136,7 @@ void read_request(char* email, int sockfd) {
 
   gettimeofday(&stop, NULL);
 	printf("%ld.%06d,", stop.tv_sec, stop.tv_usec);
-  printf("%ld.%06d/n", stop.tv_sec-start.tv_sec, stop.tv_usec-start.tv_usec);
+  printf("%ld.%06d\n", stop.tv_sec-start.tv_sec, stop.tv_usec-start.tv_usec);
 }
 
 int main(void)

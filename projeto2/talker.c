@@ -97,7 +97,7 @@ int main(int argc, char *argv[]) {
   
   gettimeofday(&stop, NULL);
   printf("%ld.%06d,", stop.tv_sec, stop.tv_usec);
-  printf("%ld.%06d,", stop.tv_sec-start.tv_sec, stop.tv_usec-start.tv_usec);
+  printf("%ld.%06d\n", stop.tv_sec-start.tv_sec, stop.tv_usec-start.tv_usec);
 
 	freeaddrinfo(servinfo);
 

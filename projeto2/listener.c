@@ -58,7 +58,7 @@ void fetch_users(user* result, int count) {
 void send_result(void* value, int numbytes, int sockfd, struct sockaddr_storage addr, socklen_t addr_len) {
   struct timeval start;
   gettimeofday(&start, NULL);
-  printf("%ld.%06d\n", start.tv_sec, start.tv_usec);
+  printf("%ld.%06d,", start.tv_sec, start.tv_usec);
 	if (sendto(sockfd, value, numbytes, 0, (struct sockaddr_storage *)&addr, addr_len) == -1) {
 		perror("error sending result");
 	}
@@ -82,7 +82,7 @@ char *user2str (user ap)
     fprintf (stderr, "%s() error: snprintf returned truncated result.\n", __func__);
     return NULL;
   }
-	printf("User -> %s\n", apstr);
+//  printf("User -> %s\n", apstr);
   return apstr;
 }
 
