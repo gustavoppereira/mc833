@@ -131,7 +131,7 @@ void read_request(char* email, int sockfd) {
   struct timeval stop, start;
   gettimeofday(&start, NULL);
 
-	printf("Started operation at : %ld.%d\n", start.tv_sec, start.tv_usec);
+	printf("%ld.%06d,", start.tv_sec, start.tv_usec);
 	user database[DB_ENTRY_SIZE];
 
 	fetch_users(database, DB_ENTRY_SIZE);
@@ -139,7 +139,8 @@ void read_request(char* email, int sockfd) {
 	get_by_email(email, database, sockfd);
 
   gettimeofday(&stop, NULL);
-	printf("Operation ended at : %ld.%d\n", stop.tv_sec, stop.tv_usec);
+	printf("%ld.%06d\n", stop.tv_sec, stop.tv_usec);
+  printf("%ld.%06d,", stop.tv_sec-start.tv_sec, stop.tv_usec-start.tv_usec);
 }
 
 int main(void)

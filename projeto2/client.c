@@ -34,16 +34,6 @@ struct user {
 
 typedef struct user user;
 
-struct request {
-  char experience[50];
-  char formation[50];
-  char email[50];
-  char city[50];
-  int operation;
-};
-
-typedef struct request request;
-
 // get sockaddr, IPv4 or IPv6:
 void *get_in_addr(struct sockaddr *sa)
 {
@@ -121,21 +111,16 @@ int main(int argc, char *argv[])
 {
   int sockfd, numbytes;
   char buf[MAXDATASIZE+2];
-  char input[MAXINPUTSIZE];
   struct addrinfo hints, *servinfo, *p;
   int rv, i;
-  int method_number = 6;
-  int selected_method = -1;
   int space_char = 0;
   user* results;
-  char * method_names[] = {"user-formation","hability-city","experience-add", "experience-email", "user-all", "user-email"};
-  char * method_fields[] = {"formation","city","experience", "email", "", "email"};
-  request send_request;
+  char email[50];
 
   char s[INET6_ADDRSTRLEN];
 
   if (argc != 3) {
-    fprintf(stderr,"usage: client hostname method\n");
+    fprintf(stderr,"usage: client hostname email\n");
     exit(1);
   }
 
@@ -148,53 +133,8 @@ int main(int argc, char *argv[])
     return 1;
   }
 
-  // reading method input
-  for(i=0; i<method_number; i++) {
-    if(!strcmp(method_names[i], argv[2])) {
-      selected_method = i;
-      break;
-    }
-  }
-
-  if(selected_method == -1) {
-    fprintf(stderr, "failed to select method\n");
-    return 1;
-  }
-
-  send_request.operation = selected_method;
-  // get input for selected methods
-  if(selected_method != 4) {
-
-    fprintf(stdout, "Input selected %s:\n", method_fields[selected_method]);
-    fgets (input, MAXINPUTSIZE, stdin);
-    strtok(input, "\n");
-    switch(selected_method){
-      case 0:
-        strcpy(send_request.formation,input);
-        break;
-      case 1:
-        strcpy(send_request.city,input);
-        break;
-      case 2:
-        strcpy(send_request.experience,input);
-
-        fprintf(stdout, "Input selected %s:\n", method_fields[selected_method+1]);
-        fgets (input, MAXINPUTSIZE, stdin);
-        strtok(input, "\n");
-      case 3:
-      case 5:
-        strcpy(send_request.email,input);
-        break;
-    }
-  }
-  // print input for debug
-//  fprintf(stdout, "Request: {\n");
-//  fprintf(stdout, "method: %i\n", send_request.operation);
-//  fprintf(stdout, "exp: %s\n", send_request.experience);
-//  fprintf(stdout, "form: %s\n", send_request.formation);
-//  fprintf(stdout, "email: %s\n", send_request.email);
-//  fprintf(stdout, "city: %s\n", send_request.city);
-//  fprintf(stdout, "}\n");
+  // get inputed mail
+  strcpy(email,argv[2]);
 
   // loop through all the results and connect to the first we can
   for(p = servinfo; p != NULL; p = p->ai_next) {
@@ -220,59 +160,28 @@ int main(int argc, char *argv[])
 
   inet_ntop(p->ai_family, get_in_addr((struct sockaddr *)p->ai_addr),
             s, sizeof s);
-  printf("client: connecting to %s\n", s);
+//  printf("client: connecting to %s\n", s);
 
   freeaddrinfo(servinfo); // all done with this structure
-
-  // Send method
-  printf("client: sending operation\n");
-  if ((numbytes = send(sockfd, &(send_request.operation), sizeof(int), 0)) == -1) {
-    perror("failed sending operation");
+  
+  struct timeval start, stop;
+  gettimeofday(&start, NULL);
+  printf("%ld.%06d,", start.tv_sec, start.tv_usec);
+  
+  // Send email
+//  printf("client: sending email\n");
+  if ((numbytes = send(sockfd, &(email), sizeof(char[50]), 0)) == -1) {
+    perror("failed sending email");
     exit(1);
   }
 
-  struct timeval start, stop;
-  gettimeofday(&start, NULL);
-  printf("Started send operation at : %ld.%d\n", start.tv_sec, start.tv_usec);
-  // Send params
-  switch(selected_method){
-    case 0:
-//      printf("client: sending formation\n");
-      if ((numbytes = send(sockfd, &(send_request.formation), sizeof(char[50]), 0)) == -1) {
-        perror("failed sending formation");
-        exit(1);
-      }
-      space_char = 1;
-      break;
-    case 1:
-//      printf("client: sending city\n");
-      if ((numbytes = send(sockfd, &(send_request.city), sizeof(char[50]), 0)) == -1) {
-        perror("failed sending city");
-        exit(1);
-      }
-      break;
-    case 2:
-//      printf("client: sending experience\n");
-      if ((numbytes = send(sockfd, &(send_request.experience), sizeof(char[50]), 0)) == -1) {
-        perror("failed sending experience");
-        exit(1);
-      }
-    case 3:
-    case 5:
-//      printf("client: sending email\n");
-      if ((numbytes = send(sockfd, &(send_request.email), sizeof(char[50]), 0)) == -1) {
-        perror("failed sending email");
-        exit(1);
-      }
-      break;
-  }
   gettimeofday(&stop, NULL);
-  printf("Ended send operation at :  %ld.%d\n", stop.tv_sec, stop.tv_usec);
-  printf("Time for send operation :  %ld.%d\n", stop.tv_sec-start.tv_sec, stop.tv_usec-start.tv_usec);
+  printf("%ld.%06d,", stop.tv_sec, stop.tv_usec);
+  printf("%ld.%06d,", stop.tv_sec-start.tv_sec, stop.tv_usec-start.tv_usec);
 
   struct timeval start2;
   gettimeofday(&start2, NULL);
-  printf("Started receive operation at : %ld.%d\n", start2.tv_sec, start2.tv_usec);
+  printf("%ld.%06d,", start2.tv_sec, start2.tv_usec);
 
   numbytes = -1;
   if ((numbytes = recv(sockfd, buf, MAXDATASIZE, 0)) == -1) {
@@ -281,26 +190,21 @@ int main(int argc, char *argv[])
   }
 
   gettimeofday(&stop, NULL);
-  printf("Ended receive operation at : %ld.%d\n", stop.tv_sec, stop.tv_usec);
-  printf("Time for receive operation : %ld.%d\n", stop.tv_sec-start2.tv_sec, stop.tv_usec-start2.tv_usec);
+  printf("%ld.%06d,", stop.tv_sec, stop.tv_usec);
+  printf("%ld.%06d\n", stop.tv_sec-start2.tv_sec, stop.tv_usec-start2.tv_usec);
 
-  printf("Time for full operation: %ld.%d\n", stop.tv_sec-start.tv_sec, stop.tv_usec-start.tv_usec);
+//  printf("Time for full operation: %ld.%d\n", stop.tv_sec-start.tv_sec, stop.tv_usec-start.tv_usec);
 
   if(numbytes != 0) {
 
     buf[numbytes] = '\0';
 
-    if(selected_method == 3){
-      printf("%s\n", buf);
-    }
-    else{
-      results = str2userlist(buf);
+    results = str2userlist(buf);
 
-      for(i=0; i<10 && results[i].email[0] != ' '; i++){
+    for(i=0; i<10 && results[i].email[0] != ' '; i++){
 //        if(selected_method == 1)
 //          print_user_skill(results[i]);
 //        else print_user(results[i]);
-      }
     }
 
   }
