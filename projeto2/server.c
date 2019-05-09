@@ -75,7 +75,7 @@ void fetch_users(user* result, int count) {
 void send_result(void* value, int numbytes, int sockfd) {
   struct timeval start;
   gettimeofday(&start, NULL);
-  printf("Sending result at : %ld.%d\n", start.tv_sec, start.tv_usec);
+  printf("%ld.%06d,", start.tv_sec, start.tv_usec);
 	if (send(sockfd, value, numbytes, 0) == -1) {
 		perror("error sending result");
 	}
@@ -139,8 +139,8 @@ void read_request(char* email, int sockfd) {
 	get_by_email(email, database, sockfd);
 
   gettimeofday(&stop, NULL);
-	printf("%ld.%06d\n", stop.tv_sec, stop.tv_usec);
-  printf("%ld.%06d,", stop.tv_sec-start.tv_sec, stop.tv_usec-start.tv_usec);
+	printf("%ld.%06d,", stop.tv_sec, stop.tv_usec);
+  printf("%ld.%06d/n", stop.tv_sec-start.tv_sec, stop.tv_usec-start.tv_usec);
 }
 
 int main(void)
@@ -210,7 +210,7 @@ int main(void)
 		exit(1);
 	}
 
-	printf("server: waiting for connections...\n");
+//  printf("server: waiting for connections...\n");
 
 	while(1) {  // main accept() loop
 		sin_size = sizeof their_addr;
@@ -223,7 +223,7 @@ int main(void)
 		inet_ntop(their_addr.ss_family,
 			get_in_addr((struct sockaddr *)&their_addr),
 			s, sizeof s);
-		printf("server: got connection from %s\n", s);
+//    printf("server: got connection from %s\n", s);
 
 		if (!fork()) { // this is the child process
 			close(sockfd); // child doesn't need the listener
@@ -233,7 +233,7 @@ int main(void)
 			}
       struct timeval start;
       gettimeofday(&start, NULL);
-			printf("Received request at : %ld.%d\n", start.tv_sec, start.tv_usec);
+			printf("%ld.%06d,", start.tv_sec, start.tv_usec);
 			read_request(email, new_fd);
 
 			close(new_fd);
