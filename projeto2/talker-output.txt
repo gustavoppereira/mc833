@@ -1,0 +1,2 @@
+talker: sent 16 bytes to localhost
+talker: received teste1@email.com,Teste,1,teste1.jpg,Campinas,Maconheiro,Fumar paiero,Nada

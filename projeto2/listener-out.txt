@@ -1,0 +1,6 @@
+listener: waiting to recvfrom...
+Received email teste1@email.com
+Started operation at : 1557371212.988789
+User -> teste1@email.com,Teste,1,teste1.jpg,Campinas,Maconheiro,Fumar paiero,Nada
+Sending result at : 1557371212.988904
+Operation ended at : 1557371212.988938

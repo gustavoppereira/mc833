@@ -119,7 +119,7 @@ void read_request(char* email, int sockfd, struct sockaddr_storage addr, socklen
 
   gettimeofday(&stop, NULL);
 	printf("%ld.%06d,", stop.tv_sec, stop.tv_usec);
-  printf("%ld.%06d\n", stop.tv_sec-start2.tv_sec, stop.tv_usec-start2.tv_usec);
+  printf("%ld.%06d\n", stop.tv_sec-start.tv_sec, stop.tv_usec-start.tv_usec);
 }
 
 int main(void)
