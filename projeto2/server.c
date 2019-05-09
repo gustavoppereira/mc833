@@ -115,10 +115,6 @@ void concat_user(char* result, user data) {
 void get_by_email(char* email, user* database, int sockfd) {
 	char result[MAXUSERBYTES] = "";
 
-	if (recv(sockfd, &email, 50, 0) == -1) {
-		perror("list_by_formation: recv formation");
-		exit(1);
-	}
 	for(int i = 0; i < DB_ENTRY_SIZE; i++) {
 		if (strcmp(database[i].email, email) == 0) {
 			concat_user(result, database[i]);
@@ -223,14 +219,15 @@ int main(void)
 		inet_ntop(their_addr.ss_family,
 			get_in_addr((struct sockaddr *)&their_addr),
 			s, sizeof s);
-//    printf("server: got connection from %s\n", s);
+   // printf("server: got connection from %s\n", s);
 
 		if (!fork()) { // this is the child process
 			close(sockfd); // child doesn't need the listener
 
-			if ((numbytes = recv(new_fd, email, sizeof(int), 0)) == -1) {
+			if ((numbytes = recv(new_fd, email, 50, 0)) == -1) {
 				perror("error receiving request");
 			}
+
       struct timeval start;
       gettimeofday(&start, NULL);
 			printf("%ld.%06d,", start.tv_sec, start.tv_usec);
